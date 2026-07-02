@@ -27,6 +27,7 @@ import CalendarScreen  from '../screens/CalendarScreen';
 import SwapsScreen     from '../screens/SwapsScreen';
 import ExpensesScreen  from '../screens/ExpensesScreen';
 import DocumentsScreen from '../screens/DocumentsScreen';
+import ProfileScreen   from '../screens/ProfileScreen';
 
 import { Colors, Radius } from '../theme';
 
@@ -53,8 +54,14 @@ export type MainTabParamList = {
   Documents: undefined;
 };
 
+export type MainStackParamList = {
+  MainTabs: undefined;
+  Profile:  undefined;
+};
+
 const AuthStack  = createNativeStackNavigator<AuthStackParamList>();
 const SetupStack = createNativeStackNavigator<SetupStackParamList>();
+const MainStack  = createNativeStackNavigator<MainStackParamList>();
 const Tab        = createBottomTabNavigator<MainTabParamList>();
 
 // ── Auth navigator ────────────────────────────────────────────────────────────
@@ -122,6 +129,15 @@ function MainTabs() {
   );
 }
 
+function MainNavigator() {
+  return (
+    <MainStack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+      <MainStack.Screen name="MainTabs" component={MainTabs} />
+      <MainStack.Screen name="Profile"  component={ProfileScreen} />
+    </MainStack.Navigator>
+  );
+}
+
 // ── Loading ───────────────────────────────────────────────────────────────────
 
 function LoadingScreen() {
@@ -156,7 +172,7 @@ function NavigationRoot() {
         <SetupNavigator />
       ) : (
         // Fully set up
-        <MainTabs />
+        <MainNavigator />
       )}
     </NavigationContainer>
   );
