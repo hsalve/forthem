@@ -12,6 +12,13 @@ export type CalendarEventInput = {
   notes?: string | null;
 };
 
+export type CalendarEventUpdate = {
+  title: string;
+  category: EventCategory;
+  event_time?: string | null;
+  notes?: string | null;
+};
+
 export async function getCalendarEventsForMonth(familyId: string, year: number, month: number): Promise<CalendarEvent[]> {
   const start = `${year}-${String(month + 1).padStart(2, '0')}-01`;
   const end = `${year}-${String(month + 1).padStart(2, '0')}-${String(new Date(year, month + 1, 0).getDate()).padStart(2, '0')}`;
@@ -36,4 +43,23 @@ export async function createCalendarEvent(input: CalendarEventInput): Promise<Ca
 
   if (error) throw error;
   return data;
+}
+
+export async function updateCalendarEvent(eventId: string, input: CalendarEventUpdate): Promise<CalendarEvent> {
+  const { data, error } = await db.calendarEvents()
+    .update(input)
+    .eq('id', eventId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteCalendarEvent(eventId: string): Promise<void> {
+  const { error } = await db.calendarEvents()
+    .delete()
+    .eq('id', eventId);
+
+  if (error) throw error;
 }
