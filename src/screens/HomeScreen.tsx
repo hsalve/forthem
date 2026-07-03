@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { CalendarPlus, DollarSign, FileText, RefreshCw } from 'lucide-react-native';
 
 import { useAuth } from '../context/AuthContext';
+import { useFamily } from '../context/FamilyContext';
 import { Card, Icon, SectionHeader } from '../components';
 import { Colors, Spacing, Typography, Radius, Shadows, Layout } from '../theme';
 
@@ -15,13 +16,27 @@ function greeting() {
   return 'Good evening';
 }
 
+function ageText(dob?: string | null) {
+  if (!dob) return 'Age not set yet';
+  const birth = new Date(dob);
+  if (Number.isNaN(birth.getTime())) return 'Age not set yet';
+  const now = new Date();
+  let years = now.getFullYear() - birth.getFullYear();
+  const m = now.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) years--;
+  return years <= 0 ? 'Under 1 year old' : `${years} year${years === 1 ? '' : 's'} old`;
+}
+
 export default function HomeScreen() {
   const { user } = useAuth();
+  const { children } = useFamily();
   const navigation = useNavigation<any>();
   const emailPrefix = user?.email?.split('@')[0] ?? 'Parent';
   const fullName = (user?.user_metadata?.full_name as string | undefined) ?? emailPrefix;
   const firstName = fullName.split(' ')[0];
   const initial = fullName[0]?.toUpperCase() ?? 'P';
+  const child = children[0];
+  const childName = child?.full_name ?? 'your child';
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -29,7 +44,7 @@ export default function HomeScreen() {
         <View style={styles.topbar}>
           <View>
             <Text style={styles.greeting}>{greeting()}, {firstName}</Text>
-            <Text style={styles.greetingSub}>Here is what is coming up</Text>
+            <Text style={styles.greetingSub}>Here is your week with {childName}</Text>
           </View>
           <TouchableOpacity style={styles.avatarBtn} onPress={() => navigation.navigate('Profile')} activeOpacity={0.8}>
             <Text style={styles.avatarInitial}>{initial}</Text>
@@ -38,7 +53,8 @@ export default function HomeScreen() {
 
         <SectionHeader title="Today" style={styles.section} />
         <Card style={styles.heroCard}>
-          <Text style={styles.heroTitle}>Today’s parenting time</Text>
+          <Text style={styles.heroTitle}>{child ? `Today with ${child.full_name}` : 'Add your child to personalize ForThem'}</Text>
+          <Text style={styles.heroBody}>{child ? `${ageText(child.date_of_birth)}${child.school_name ? ` · ${child.school_name}` : ''}` : 'Tap your profile photo, then add your child. You can start with just a name.'}</Text>
           <Text style={styles.heroBody}>Next handoff is Friday at 6:00 PM.</Text>
           <View style={styles.progressTrack}><View style={styles.progressFill} /></View>
         </Card>
