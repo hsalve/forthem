@@ -1,6 +1,12 @@
 import { db, supabase } from '../lib/supabase';
 import { Child, InsertChild } from '../lib/database.types';
 
+function normalizeInviteToken(value: string) {
+  const clean = value.trim();
+  const match = clean.match(/[?&]token=([^&]+)/);
+  return decodeURIComponent(match?.[1] ?? clean);
+}
+
 export async function getUserFamily(userId: string): Promise<{ familyId: string; familyName: string | null } | null> {
   const { data: member } = await db.familyMembers().select('family_id').eq('user_id', userId).maybeSingle();
   if (!member?.family_id) return null;
@@ -31,7 +37,8 @@ export async function createInvitation(familyId: string, email: string, invitedB
 }
 
 export async function getInvitationByToken(token: string) {
-  const { data } = await db.invitations().select('*').eq('token', token.trim()).eq('status', 'pending').maybeSingle();
+  const cleanToken = normalizeInviteToken(token);
+  const { data } = await db.invitations().select('*').eq('token', cleanToken).eq('status', 'pending').maybeSingle();
   if (!data) return null;
   if (new Date(data.expires_at) < new Date()) return null;
 
