@@ -33,6 +33,14 @@ export async function createFamily(name: string, userId: string, displayName?: s
   return family.id;
 }
 
+export async function updateFamilyName(familyId: string, name: string) {
+  const { error } = await db.families()
+    .update({ name: name.trim() || 'Co-parenting space' })
+    .eq('id', familyId);
+
+  if (error) throw error;
+}
+
 export async function createInvitation(familyId: string, email: string, invitedBy: string) {
   const { data, error } = await db.invitations()
     .insert({ family_id: familyId, invited_by: invitedBy, email: email.trim().toLowerCase() })
@@ -115,6 +123,11 @@ export async function updateChild(
 
   if (error) throw error;
   return data;
+}
+
+export async function deleteChild(childId: string) {
+  const { error } = await db.children().delete().eq('id', childId);
+  if (error) throw error;
 }
 
 export async function updateParentProfile(userId: string, fullName: string) {
