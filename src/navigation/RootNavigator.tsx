@@ -22,12 +22,13 @@ import AddChildScreen      from '../screens/setup/AddChildScreen';
 import AcceptInviteScreen  from '../screens/setup/AcceptInviteScreen';
 
 // Main screens
-import HomeScreen      from '../screens/HomeScreen';
-import CalendarScreen  from '../screens/CalendarScreen';
-import SwapsScreen     from '../screens/SwapsScreen';
-import ExpensesScreen  from '../screens/ExpensesScreen';
-import DocumentsScreen from '../screens/DocumentsScreen';
-import ProfileScreen   from '../screens/ProfileScreen';
+import HomeScreen                 from '../screens/HomeScreen';
+import CalendarScreen             from '../screens/CalendarScreen';
+import SwapsScreen                from '../screens/SwapsScreen';
+import ExpensesScreen             from '../screens/ExpensesScreen';
+import DocumentsScreen            from '../screens/DocumentsScreen';
+import ProfileScreen              from '../screens/ProfileScreen';
+import CoParentingSettingsScreen  from '../screens/CoParentingSettingsScreen';
 
 import { Colors, Radius } from '../theme';
 
@@ -55,8 +56,9 @@ export type MainTabParamList = {
 };
 
 export type MainStackParamList = {
-  MainTabs: undefined;
-  Profile:  undefined;
+  MainTabs:             undefined;
+  Profile:              undefined;
+  CoParentingSettings:  undefined;
 };
 
 const AuthStack  = createNativeStackNavigator<AuthStackParamList>();
@@ -132,8 +134,9 @@ function MainTabs() {
 function MainNavigator() {
   return (
     <MainStack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
-      <MainStack.Screen name="MainTabs" component={MainTabs} />
-      <MainStack.Screen name="Profile"  component={ProfileScreen} />
+      <MainStack.Screen name="MainTabs"            component={MainTabs} />
+      <MainStack.Screen name="Profile"             component={ProfileScreen} />
+      <MainStack.Screen name="CoParentingSettings" component={CoParentingSettingsScreen} />
     </MainStack.Navigator>
   );
 }
@@ -158,20 +161,16 @@ function NavigationRoot() {
   const { session, loading: authLoading }     = useAuth();
   const { familyId, loading: familyLoading }  = useFamily();
 
-  // Show spinner while restoring session OR loading family
   const isLoading = authLoading || (!!session && familyLoading);
   if (isLoading) return <LoadingScreen />;
 
   return (
     <NavigationContainer>
       {!session ? (
-        // Not logged in
         <AuthNavigator />
       ) : !familyId ? (
-        // Logged in but no family yet
         <SetupNavigator />
       ) : (
-        // Fully set up
         <MainNavigator />
       )}
     </NavigationContainer>
